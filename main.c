@@ -1,13 +1,16 @@
 #include <stdio.h>
-#include "eduos.h"
-
-PCB create_process(int pid, int priority);
+#include "include/eduos.h"
 
 int main() {
-    printf("OS Simulation starting...\n");
 
-    PCB p1 = create_process(1, 5);
-    PCB p2 = create_process(2, 3);
+    create_process(1, "Chrome");
+    create_process(2, "VSCode");
+    create_process(3, "Spotify");
+
+    run_process(2);
+    terminate_process(3);
+
+    display_processes();
 
     return 0;
 }
