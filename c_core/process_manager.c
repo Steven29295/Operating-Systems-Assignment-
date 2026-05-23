@@ -1,80 +1,69 @@
 #include <stdio.h>
 #include <string.h>
-#include "include/eduos.h"
+#include "eduos.h"
 
 #define MAX_PROCESSES 10
 
-PCB processes[MAX_PROCESSES];
-int process_count = 0;
+static PCB process_table[MAX_PROCESSES];
+static int process_count = 0;
 
-// Create process
 void create_process(int pid, const char *name) {
-
     if (process_count >= MAX_PROCESSES) {
-        printf("Process limit reached!\n");
+        printf("Process table full!\n");
         return;
     }
 
-    processes[process_count].pid = pid;
-
-    strcpy(processes[process_count].name, name);
-
-    processes[process_count].state = READY;
+    process_table[process_count].pid = pid;
+    strcpy(process_table[process_count].name, name);
+    process_table[process_count].state = READY;
 
     process_count++;
 
-    printf("Process created: %s (PID: %d)\n", name, pid);
+    printf("Process %s (PID=%d) created.\n", name, pid);
 }
 
-// Display all processes
 void display_processes() {
-
-    printf("\nProcess List:\n");
-
+    printf("\n--- Process Table ---\n");
     for (int i = 0; i < process_count; i++) {
-
         printf("PID: %d | Name: %s | State: %d\n",
-               processes[i].pid,
-               processes[i].name,
-               processes[i].state);
+               process_table[i].pid,
+               process_table[i].name,
+               process_table[i].state);
     }
 }
 
-// Run a process
 void run_process(int pid) {
-
     for (int i = 0; i < process_count; i++) {
-
-        if (processes[i].pid == pid) {
-
-            processes[i].state = RUNNING;
-
-            printf("Process %s is now RUNNING\n",
-                   processes[i].name);
-
+        if (process_table[i].pid == pid) {
+            process_table[i].state = RUNNING;
+            printf("Process %d is RUNNING\n", pid);
             return;
         }
     }
-
-    printf("Process not found!\n");
 }
 
-// Terminate a process
 void terminate_process(int pid) {
+    for (int i = 0; i < process_count; i++) {
+        if (process_table[i].pid == pid) {
+            process_table[i].state = TERMINATED;
+            printf("Process %d TERMINATED\n", pid);
+            return;
+        }
+    }
+}
+void scheduler() {
+    printf("\n--- FCFS Scheduler ---\n");
 
     for (int i = 0; i < process_count; i++) {
+        if (process_table[i].state == READY) {
+            process_table[i].state = RUNNING;
 
-        if (processes[i].pid == pid) {
-
-            processes[i].state = TERMINATED;
-
-            printf("Process %s TERMINATED\n",
-                   processes[i].name);
-
+            printf("Scheduler selected: PID=%d | Name=%s\n",
+                   process_table[i].pid,
+                   process_table[i].name);
             return;
         }
     }
 
-    printf("Process not found!\n");
-
+    printf("No READY processes found.\n");
 }
