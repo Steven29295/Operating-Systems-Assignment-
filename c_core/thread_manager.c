@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "eduos.h"
-
-#define MAX_THREADS 10
+#include "include/eduos.h"
+#define MAX_THREADS 20
 
 static TCB thread_table[MAX_THREADS];
 static int thread_count = 0;

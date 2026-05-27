@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <string.h>
-
+#include "include/eduos.h"
+#define MAX_THREADS 20
+static TCB thread_table[MAX_THREADS];
 typedef struct {
     int tid;
     int parent_pid;
     char name[50];
 } TCB;
 
-TCB thread_table[100];
+TCB thread_table[10];
 int thread_count = 0;
 
 void create_thread(int tid, int parent_pid, char *name) {

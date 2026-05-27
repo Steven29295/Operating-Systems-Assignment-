@@ -44,6 +44,9 @@ void save_pcb_to_json();
 void create_thread(int tid, int parent_pid, const char *name);
 void display_threads();
 
+void run_race_demo();
+
 void scheduler();
+
 
 #endif

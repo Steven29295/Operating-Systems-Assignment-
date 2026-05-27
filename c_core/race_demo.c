@@ -12,7 +12,7 @@ void* increment(void* arg) {
     return NULL;
 }
 
-int main() {
+void run_race_demo() {
 
     pthread_t t1, t2;
 
@@ -23,6 +23,4 @@ int main() {
     pthread_join(t2, NULL);
 
     printf("Final Counter Value: %d\n", counter);
-
-    return 0;
 }

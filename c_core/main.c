@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "include/eduos.h"
+#include "scheduler.h"
 
 int main() {
 
@@ -20,6 +21,16 @@ int main() {
 
     // Display all threads
     display_threads();
+    
+ Process p[3] = {
+        {1, 5, 0, 0},
+        {2, 3, 0, 0},
+        {3, 8, 0, 0}
+    };
+
+    printf("\n=== FCFS Scheduling ===\n");
+
+    fcfs(p, 3);
 
     return 0;
 }
