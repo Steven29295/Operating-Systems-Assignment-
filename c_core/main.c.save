@@ -1,0 +1,8 @@
+#include <stdio.h>
+
+int main() {
+    printf("OS Simulation starting...\n");
+    return 0;
+}
+gcc main.c *.c -o os_sim.exe -Wl,--subsystem,console
+
