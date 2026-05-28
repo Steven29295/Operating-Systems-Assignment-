@@ -2,14 +2,22 @@
   {
     "pid": 1,
     "name": "Chrome",
+<<<<<<< HEAD
     "state": "TERMINATED",
+=======
+    "state": "READY",
+>>>>>>> 92c1c7c (Add EDOUS project report and 16-slide presentation)
     "priority": 1,
     "burst_time": 5
   },
   {
     "pid": 2,
     "name": "VSCode",
+<<<<<<< HEAD
     "state": "TERMINATED",
+=======
+    "state": "READY",
+>>>>>>> 92c1c7c (Add EDOUS project report and 16-slide presentation)
     "priority": 2,
     "burst_time": 3
   }

@@ -19,6 +19,14 @@ typedef struct {
     ProcessState state;
     int priority;
     int burst_time;
+
+    // ✅ REQUIRED FOR FIXED SCHEDULING
+    int remaining_time;
+    int arrival_time;
+    int completion_time;
+    int turnaround_time;
+    int waiting_time;
+
     int owner_id;
 } PCB;
 
@@ -28,6 +36,14 @@ typedef struct {
     int parent_pid;
     char name[50];
 } TCB;
+
+// ===== GANTT GLOBALS =====
+extern int gantt_log[1000];
+extern int gantt_index;
+
+// ===== HELPER =====
+void add_gantt(int pid);
+void show_gantt_chart();
 
 // ================= PROCESS FUNCTIONS =================
 
@@ -44,6 +60,13 @@ void save_pcb_to_json();
 void create_thread(int tid, int parent_pid, const char *name);
 void display_threads();
 
-void scheduler();
+void run_race_demo();
+// ================= SCHEDULERS =================
 
+void scheduler();                  // FCFS
+void scheduler_rr();              // Round Robin
+void scheduler_priority();        // Priority Scheduling
+
+void cpu_utilization();           // CPU stats
+void print_gantt_chart();         // Gantt chart
 #endif

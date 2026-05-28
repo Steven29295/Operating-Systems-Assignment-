@@ -2,159 +2,124 @@
 #include <string.h>
 #include "include/eduos.h"
 
+// ================= GLOBAL PROCESS TABLE =================
 PCB process_table[MAX_PROCESSES];
 int process_count = 0;
+static int global_time = 0;
 
-// Convert state enum to string
+// ================= EXTERNAL GANTT (FROM scheduler.c) =================
+extern int gantt_log[1000];
+extern int gantt_index;
+
+// ================= STATE CONVERTER =================
 const char* state_to_string(ProcessState state) {
-
     switch(state) {
-
-        case READY:
-            return "READY";
-
-        case RUNNING:
-            return "RUNNING";
-
-        case WAITING:
-            return "WAITING";
-
-        case TERMINATED:
-            return "TERMINATED";
-
-        default:
-            return "UNKNOWN";
+        case READY: return "READY";
+        case RUNNING: return "RUNNING";
+        case WAITING: return "WAITING";
+        case TERMINATED: return "TERMINATED";
+        default: return "UNKNOWN";
     }
 }
 
-// Save PCB snapshot to JSON
+// ================= SAVE JSON =================
 void save_pcb_to_json() {
-
     FILE *file = fopen("pcb_snapshot.json", "w");
-
-    if(file == NULL) {
-        printf("Failed to create JSON file.\n");
-        return;
-    }
+    if (!file) return;
 
     fprintf(file, "[\n");
 
-    for(int i = 0; i < process_count; i++) {
+    for (int i = 0; i < process_count; i++) {
+        PCB *p = &process_table[i];
 
         fprintf(file,
-            "  {\n"
-            "    \"pid\": %d,\n"
-            "    \"name\": \"%s\",\n"
-            "    \"state\": \"%s\",\n"
-            "    \"priority\": %d,\n"
-            "    \"burst_time\": %d\n"
-            "  }%s\n",
-
-            process_table[i].pid,
-            process_table[i].name,
-            state_to_string(process_table[i].state),
-            process_table[i].priority,
-            process_table[i].burst_time,
-
+            "  {\"pid\": %d, \"name\": \"%s\", \"state\": \"%s\", "
+            "\"priority\": %d, \"burst_time\": %d, "
+            "\"remaining_time\": %d, \"waiting_time\": %d, \"turnaround_time\": %d}%s\n",
+            p->pid,
+            p->name,
+            state_to_string(p->state),
+            p->priority,
+            p->burst_time,
+            p->remaining_time,
+            p->waiting_time,
+            p->turnaround_time,
             (i == process_count - 1) ? "" : ","
         );
     }
 
     fprintf(file, "]\n");
-
     fclose(file);
-
-    printf("PCB snapshot saved.\n");
 }
 
-// Create process
+// ================= CREATE PROCESS =================
 void create_process(const char *name, int priority, int burst_time) {
 
-    PCB new_process;
+    PCB *p = &process_table[process_count];
 
-    new_process.pid = process_count + 1;
+    p->pid = process_count + 1;
+    strcpy(p->name, name);
 
-    strcpy(new_process.name, name);
+    p->priority = priority;
+    p->burst_time = burst_time;
 
-    new_process.state = READY;
+    p->remaining_time = burst_time;
+    p->arrival_time = global_time;
 
-    new_process.priority = priority;
-
-    new_process.burst_time = burst_time;
-
-    process_table[process_count] = new_process;
+    p->state = READY;
 
     process_count++;
 
-    printf("Process created: %s\n", name);
+    printf("Process created: %s (PID=%d)\n", name, p->pid);
 
     save_pcb_to_json();
 }
 
-// Display processes
+// ================= DISPLAY =================
 void display_processes() {
 
     printf("\n===== PROCESS TABLE =====\n");
 
-    for(int i = 0; i < process_count; i++) {
+    for (int i = 0; i < process_count; i++) {
 
-        printf(
-            "PID: %d | Name: %s | State: %s | Priority: %d | Burst: %d\n",
+        PCB *p = &process_table[i];
 
-            process_table[i].pid,
-            process_table[i].name,
-            state_to_string(process_table[i].state),
-            process_table[i].priority,
-            process_table[i].burst_time
+        printf("PID:%d | %s | %d | Burst:%d | Remaining:%d | WT:%d | TAT:%d\n",
+            p->pid,
+            p->name,
+            p->priority,
+            p->burst_time,
+            p->remaining_time,
+            p->waiting_time,
+            p->turnaround_time
         );
     }
 }
 
-// Run process
+// ================= RUN PROCESS =================
 void run_process(int pid) {
 
-    for(int i = 0; i < process_count; i++) {
+    for (int i = 0; i < process_count; i++) {
 
-        if(process_table[i].pid == pid) {
+        PCB *p = &process_table[i];
 
-            process_table[i].state = RUNNING;
+        if (p->pid == pid && p->remaining_time > 0) {
 
-            printf("Process %d is RUNNING\n", pid);
+            p->state = RUNNING;
 
-            save_pcb_to_json();
+            printf("Running PID %d (%s)\n", p->pid, p->name);
 
-            return;
-        }
-    }
-}
+            p->remaining_time--;
+            global_time++;
 
-// Terminate process
-void terminate_process(int pid) {
+            gantt_log[gantt_index++] = pid;
 
-    for(int i = 0; i < process_count; i++) {
-
-        if(process_table[i].pid == pid) {
-
-            process_table[i].state = TERMINATED;
-
-            printf("Process %d TERMINATED\n", pid);
+            if (p->remaining_time == 0) {
+                p->state = TERMINATED;
+            }
 
             save_pcb_to_json();
-
             return;
         }
-    }
-}
-
-// Simple FCFS Scheduler
-void scheduler() {
-
-    printf("\nRunning FCFS Scheduler...\n");
-
-    for(int i = 0; i < process_count; i++) {
-
-        run_process(process_table[i].pid);
-
-        terminate_process(process_table[i].pid);
     }
 }

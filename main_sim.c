@@ -1,9 +1,5 @@
 #include <stdio.h>
 #include "include/eduos.h"
-<<<<<<< HEAD
-#include "scheduler.h"
-=======
->>>>>>> 92c1c7c (Add EDOUS project report and 16-slide presentation)
 
 int main() {
 
@@ -25,27 +21,11 @@ int main() {
     display_threads();
 
     // FCFS Scheduling
-<<<<<<< HEAD
-    Process p[3] = {
-        {1, 5, 0, 0},
-        {2, 3, 0, 0},
-        {3, 8, 0, 0}
-    };
-
-    printf("\n=== FCFS Scheduling ===\n");
-
-    fcfs(p, 3);
-
-    // Race condition demo
-    printf("\n=== Race Condition Demo ===\n");
-
-=======
     printf("\n=== FCFS Scheduling ===\n");
     scheduler();
 
     // Race condition demo
     printf("\n=== Race Condition Demo ===\n");
->>>>>>> 92c1c7c (Add EDOUS project report and 16-slide presentation)
     run_race_demo();
 
     return 0;
